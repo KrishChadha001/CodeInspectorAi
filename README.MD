@@ -9,7 +9,7 @@ then posts one structured, actionable review comment back on the PR.
 Install it as a **GitHub App**, try it on any public PR from the website, and watch every
 review on a live dashboard.
 
-**[🌐 Live site](https://codeinspector-ai.vercel.app/)** · **[📊 Dashboard](https://code-inspector-ai.vercel.app/dashboard)**
+**[🌐 Live site](https://code-inspector-ai.vercel.app/)** · **[📊 Dashboard](https://code-inspector-ai.vercel.app/dashboard)**
 
 [![tests](https://github.com/KrishChadha001/PRReviewBot/actions/workflows/tests.yml/badge.svg)](https://github.com/KrishChadha001/PRReviewBot/actions/workflows/tests.yml)
 [![Python](https://img.shields.io/badge/python-3.11%20|%203.12-3776AB?logo=python&logoColor=white)](https://www.python.org/)
