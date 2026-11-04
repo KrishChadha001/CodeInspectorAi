@@ -15,7 +15,7 @@ specific, actionable feedback that accounts for how code changes fit together.
 ### An autonomous AI code reviewer that reads your pull requests so humans don't have to read them twice.
 
 Fetches a GitHub PR, reviews the diff and hunts for vulnerabilities **in parallel**,
-then posts one structured, actionable review comment back on the PR.
+then posts a structured summary and line-specific feedback back on the PR.
 Install it as a **GitHub App**, try it on any public PR from the website, and watch every
 review on a live dashboard.
 
@@ -24,7 +24,7 @@ review on a live dashboard.
 [![LangGraph](https://img.shields.io/badge/LangGraph-0.2-1C3C3C?logo=langchain&logoColor=white)](https://langchain-ai.github.io/langgraph/)
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.115-009688?logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com/)
 [![Groq](https://img.shields.io/badge/Groq-gpt--oss--120b-F55036?logo=groq&logoColor=white)](https://groq.com/)
-[![tests](https://img.shields.io/badge/tests-144%20passing-brightgreen)](#-testing)
+[![tests](https://img.shields.io/badge/tests-155%20passing-brightgreen)](#-testing)
 
 [Demo](#-demo) • [Architecture](#-architecture) • [Sample Output](#-sample-output) • [Quick Start](#-quick-start) • [Web UI](#️-web-ui--dashboard) • [Deploy](#️-deploy) • [GitHub App](#-github-app-let-anyone-install-it) • [Engineering Notes](#-engineering-notes) • [Testing](#-testing)
 
@@ -39,6 +39,8 @@ review on a live dashboard.
 </p>
 
 <p align="center"><em>Highlights from the working project</em></p>
+
+<p align="center"><a href="assets/CodeInspectorAI_inline_demo.mp4">Watch the full demo video with narration (3:01)</a></p>
 
 ---
 
@@ -63,7 +65,8 @@ automatically, on every push.
 | 🛡️ | **Defence in depth** | A deterministic regex sweep for leaked credentials runs *alongside* the LLM, so an obvious secret is caught even if the model misses it |
 | ⚖️ | **Deterministic verdicts** | The LLM finds problems; **code** decides the outcome. A critical finding always means `changes_requested` — never a function of the model's mood |
 | 🩹 | **Fail-soft by design** | Any node can die without killing the run. Lose the security scan and you still get the review, flagged `partial` with the error disclosed |
-| 🔁 | **Idempotent comments** | Pushing 10 commits updates **one** comment in place instead of spamming ten |
+| 🔁 | **Idempotent comments** | Repeated reviews update the summary and reuse inline comments on the same changed lines instead of spamming duplicates |
+| 📍 | **Inline findings** | Findings on added lines appear directly in the PR diff; the full summary retains findings without a valid line anchor |
 | 🎯 | **Smart diff budgeting** | Lockfiles, minified bundles and binaries are stripped; what's omitted is named in the prompt so the model knows its view is partial |
 | 🤖 | **GitHub App** | Anyone can install it on the repos they choose. Each review runs on a short-lived token scoped to that installation, and comments come from a `[bot]` account |
 | 🖥️ | **Live web demo** | Paste any public PR URL and watch the agents run step by step, then see the findings, a preview of the PR comment and the agent timing |
@@ -112,7 +115,7 @@ Designing the state *before* writing the nodes kept each one's responsibility ho
 | **Code Review** ⇄ | `parsed_diff`, `file_summaries`, `pr_intent` | `review_comments`, `code_quality_score`, `suggestions` |
 | **Security** ⇄ | `parsed_diff`, `file_summaries`, `language_detected` | `security_issues`, `severity_levels`, `vulnerable_lines` |
 | **Summary** | all findings | `final_summary`, `overall_verdict`, `formatted_comment`, `key_recommendations` |
-| **Post Review** | `formatted_comment` | `posted_comment_url`, `review_status` |
+| **Post Review** | `formatted_comment`, findings, changed-file patches | `posted_comment_url`, inline comments, `review_status` |
 
 <sub>⇄ = runs concurrently</sub>
 
@@ -525,7 +528,7 @@ now passed as a string, and a regression test signs a real RSA key and decodes t
 ## 🧪 Testing
 
 ```bash
-python -m pytest          # 144 tests · ~4s · zero network calls
+python -m pytest          # 155 tests · zero network calls
 ```
 
 <div align="center">
@@ -538,6 +541,7 @@ python -m pytest          # 144 tests · ~4s · zero network calls
 | `test_llm.py` | Structured-output retry/fallback, severity normalisation |
 | `test_api.py` | Endpoints, webhook filtering, HMAC signature verification |
 | `test_github.py` | Diff fallback, metadata extraction, comment replacement |
+| `test_inline.py` | Diff-line anchors, inline posting, rerun behavior and API failures |
 | `test_github_app.py` | Installation tokens & caching, per-review identity, install events, JWT signing |
 | `test_web.py` | Review store, live progress, demo guards & rate limit, dashboard privacy, pages |
 
@@ -557,6 +561,7 @@ nobody trusts.
 │   ├── config.py       Environment/settings, prompt loading
 │   ├── llm.py          Groq factory + resilient structured-output helper
 │   ├── github.py       PR fetch, diff, posting, webhook signatures, GitHub App tokens
+│   ├── inline.py       Diff-line validation and idempotent inline findings
 │   ├── main.py         FastAPI app (webhook + REST trigger)
 │   ├── web.py          Website, dashboard and their JSON API
 │   ├── runner.py       Runs a review with live step tracking, as the right identity
@@ -568,7 +573,8 @@ nobody trusts.
 │   ├── utils.py        Diff parsing, language detection, verdict rules
 │   ├── graph.py        LangGraph wiring
 │   └── nodes/          context · review · security · summary · post_review
-├── tests/              144 offline tests
+├── tests/              155 offline tests
+├── assets/             Demo GIF and narrated video
 ├── Dockerfile          Production image (non-root, health check)
 └── render.yaml         One-click Render deploy
 ```
@@ -598,9 +604,22 @@ nobody trusts.
 
 ---
 
+## 📏 Performance and AI tools
+
+The recorded `sktime/sktime` PR #11411 review completed in **7.0 seconds**. This is one
+demo run, not a benchmark; review time depends on diff size and model/API latency.
+CodeInspectorAI uses a hosted LLM and does not train a custom model, so a model accuracy
+score is not applicable.
+
+**AI tools used:** Groq-hosted `openai/gpt-oss-120b` for code review, security analysis,
+and summaries; OpenAI Codex for development and testing assistance; and ElevenLabs for
+the added demo narration.
+
+---
+
 ## 🗺 Roadmap
 
-- [ ] Inline review comments anchored to diff positions (not just a summary comment)
+- [x] Inline review comments anchored to added lines in the PR diff, with summary fallback
 - [ ] Repository-aware context via embeddings, so the reviewer sees beyond the diff
 - [ ] Configurable per-repo rules through a `.codeinspector.yml`
 - [ ] Review-quality feedback loop from 👍/👎 reactions on posted comments
