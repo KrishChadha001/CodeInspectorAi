@@ -40,7 +40,9 @@ review on a live dashboard.
 
 <p align="center"><em>Highlights from the working project</em></p>
 
-<p align="center"><a href="assets/CodeInspectorAI_inline_demo.mp4">Watch the full demo video with narration (3:01)</a></p>
+<p align="center"><a href="assets/CodeInspectorAI_inline_demo.mp4">Watch the full demo video with narration (2:57)</a></p>
+
+<p align="center"><em>At 1:40, see findings posted directly beside changed lines, with the full review summary for context.</em></p>
 
 ---
 
