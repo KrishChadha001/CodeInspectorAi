@@ -53,9 +53,13 @@ def fetch_context(state: ReviewState) -> Dict[str, Any]:
     repo_full_name = "{owner}/{repo}".format(owner=owner, repo=repo_name)
 
     try:
+        logger.info("Fetching PR metadata for %s#%s", repo_full_name, pr_number)
         pr = get_pr(repo_full_name, pr_number)
+        logger.info("Fetching PR diff for %s#%s", repo_full_name, pr_number)
         raw_diff = get_pr_diff(pr)
+        logger.info("Fetching changed files for %s#%s", repo_full_name, pr_number)
         changed_files_data = get_changed_files(pr)
+        logger.info("Fetching commits for %s#%s", repo_full_name, pr_number)
         commit_messages = get_commit_messages(pr)
         pr_meta = get_pr_metadata(pr)
     except Exception as exc:  # network, auth, missing PR, ...

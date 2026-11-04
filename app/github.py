@@ -57,9 +57,10 @@ def get_client() -> Github:
     """
     token = current_token()
     if token:
-        return Github(auth=Auth.Token(token), base_url=GITHUB_API_URL)
+        return Github(auth=Auth.Token(token), base_url=GITHUB_API_URL,
+                      timeout=15, retry=0)
     logger.warning("No GitHub credentials - using unauthenticated access (60 req/h, read-only).")
-    return Github(base_url=GITHUB_API_URL)
+    return Github(base_url=GITHUB_API_URL, timeout=15, retry=0)
 
 
 # ---------------------------------------------------------------- GitHub App
