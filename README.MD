@@ -38,7 +38,7 @@ review on a live dashboard.
   <img src="assets/demo.gif" alt="CodeInspectorAI demo: review a pull request, inspect the verdict and findings, and explore the dashboard" width="800">
 </p>
 
-<p align="center"><em>Highlights from the working project: pull request review, results, and dashboard.</em></p>
+<p align="center"><em>Highlights from the working project</em></p>
 
 ---
 
