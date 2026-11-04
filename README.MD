@@ -1,6 +1,16 @@
-﻿<div align="center">
+<div align="center">
 
-# 🔍 CodeInspectorAI
+# 🔍 CodeInspectorAI — AI-Powered Automated Code Review
+
+**Neural Storm 2026 · Future Tech · Problem Statement FT-05**
+
+**Team:** Error404 · **Member:** Krish Chadha
+
+### Problem statement
+
+Build an LLM-based tool that analyzes source code repositories for bugs, security
+vulnerabilities, and style issues, and provides context-aware suggestions. Reviewers need
+specific, actionable feedback that accounts for how code changes fit together.
 
 ### An autonomous AI code reviewer that reads your pull requests so humans don't have to read them twice.
 
@@ -587,3 +597,4 @@ nobody trusts.
 - [x] Dockerfile + one-click deploy
 - [x] Website with a live demo + review dashboard
 - [x] GitHub App: install on any account, scoped short-lived tokens, `[bot]` comments
+
