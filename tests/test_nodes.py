@@ -317,6 +317,47 @@ class TestSummaryNode:
 # Post review node
 # ------------------------------------------------------------
 class TestPostReviewNode:
+    def test_posts_valid_inline_findings_after_summary(self, monkeypatch, base_state, fake_pr):
+        from graph.state import ReviewComment
+
+        monkeypatch.setattr(post_node, "current_token", lambda: "ghp_test")
+        monkeypatch.setattr(post_node, "get_pr", lambda *_: fake_pr)
+        monkeypatch.setattr(post_node, "post_pr_comment", lambda *_: "https://x/summary")
+        seen = []
+        monkeypatch.setattr(post_node, "post_inline_comments", lambda pr, findings, sha, token:
+                            (seen.append((findings, sha, token)) or 1, []))
+        result = post_node.post_review({**base_state, "formatted_comment": "body",
+            "post_comment": True, "review_comments": [ReviewComment(
+                file="app/handlers.py", line=4, message="Avoid eval", severity="critical")],
+            "security_issues": []})
+        assert result["review_status"] == "success"
+        assert seen[0][0][0]["line"] == 4
+        assert seen[0][1:] == ("abc1234", "ghp_test")
+
+    def test_stale_pr_head_does_not_post(self, monkeypatch, base_state, fake_pr):
+        fake_pr.head.sha = "new-commit"
+        monkeypatch.setattr(post_node, "current_token", lambda: "ghp_test")
+        monkeypatch.setattr(post_node, "get_pr", lambda *_: fake_pr)
+        monkeypatch.setattr(post_node, "post_pr_comment", lambda *_: pytest.fail("stale review posted"))
+        result = post_node.post_review({**base_state, "formatted_comment": "body",
+                                        "post_comment": True})
+        assert result["review_status"] == "partial"
+        assert "changed during review" in result["errors"][0]
+
+    def test_inline_failure_keeps_summary_and_marks_partial(self, monkeypatch, base_state, fake_pr):
+        from graph.state import ReviewComment
+
+        monkeypatch.setattr(post_node, "current_token", lambda: "ghp_test")
+        monkeypatch.setattr(post_node, "get_pr", lambda *_: fake_pr)
+        monkeypatch.setattr(post_node, "post_pr_comment", lambda *_: "https://x/summary")
+        monkeypatch.setattr(post_node, "post_inline_comments", lambda *_: (0, ["inline: rejected line"]))
+        result = post_node.post_review({**base_state, "formatted_comment": "body",
+            "post_comment": True, "review_comments": [ReviewComment(
+                file="app/handlers.py", line=4, message="Avoid eval")], "security_issues": []})
+        assert result["posted_comment_url"] == "https://x/summary"
+        assert result["review_status"] == "partial"
+        assert result["errors"] == ["inline: rejected line"]
+
     def test_dry_run_does_not_post(self, monkeypatch, base_state):
         monkeypatch.setattr(post_node, "get_pr", lambda *_: pytest.fail("should not post"))
         result = post_node.post_review(
@@ -348,9 +389,9 @@ class TestPostReviewNode:
         assert result["review_status"] == "partial"
         assert "GITHUB_TOKEN" in result["errors"][0]
 
-    def test_prior_errors_downgrade_status(self, monkeypatch, base_state):
+    def test_prior_errors_downgrade_status(self, monkeypatch, base_state, fake_pr):
         monkeypatch.setattr(post_node, "current_token", lambda: "ghp_test")
-        monkeypatch.setattr(post_node, "get_pr", lambda *_: object())
+        monkeypatch.setattr(post_node, "get_pr", lambda *_: fake_pr)
         monkeypatch.setattr(post_node, "post_pr_comment", lambda pr, body: "https://x/1")
 
         result = post_node.post_review(
@@ -362,3 +403,4 @@ class TestPostReviewNode:
             }
         )
         assert result["review_status"] == "partial"
+        assert result["posted_comment_url"] == "https://x/1"

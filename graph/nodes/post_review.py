@@ -13,6 +13,7 @@ from typing import Any, Dict
 
 from app.config import POST_COMMENTS
 from app.github import current_token, get_pr, post_pr_comment
+from app.inline import inline_findings, post_inline_comments
 from graph.state import ReviewState
 
 logger = logging.getLogger(__name__)
@@ -55,9 +56,32 @@ def post_review(state: ReviewState) -> Dict[str, Any]:
     )
     try:
         pr = get_pr(repo_full_name, state["pr_number"])
+        metadata = state.get("pr_metadata")
+        reviewed_sha = metadata.commit_sha if metadata else ""
+        current_sha = pr.head.sha if pr.head else ""
+        if reviewed_sha and reviewed_sha != current_sha:
+            return {
+                "posted_comment_url": "",
+                "review_status": "partial",
+                "errors": ["post_review: PR changed during review; skipped stale findings."],
+            }
         url = post_pr_comment(pr, body)
+        inline_errors = []
+        if state.get("review_comments") or state.get("security_issues"):
+            try:
+                findings = inline_findings(
+                    pr.get_files(), state.get("review_comments") or [],
+                    state.get("security_issues") or [],
+                )
+                _, inline_errors = post_inline_comments(
+                    pr, findings, current_sha, current_token(),
+                )
+            except Exception as exc:
+                inline_errors = ["inline: {exc}".format(exc=exc)]
         logger.info("Posted review to %s", url)
-        return {"posted_comment_url": url, "review_status": status, "errors": []}
+        return {"posted_comment_url": url,
+                "review_status": "partial" if inline_errors else status,
+                "errors": inline_errors}
     except Exception as exc:
         logger.exception("Failed to post review comment")
         return {
