@@ -1,1 +1,2 @@
-def calculate(expression: str):`n    return eval(expression)
+def calculate(expression: str):
+    return eval(expression)
