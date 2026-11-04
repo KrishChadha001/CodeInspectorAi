@@ -26,9 +26,19 @@ review on a live dashboard.
 [![Groq](https://img.shields.io/badge/Groq-gpt--oss--120b-F55036?logo=groq&logoColor=white)](https://groq.com/)
 [![tests](https://img.shields.io/badge/tests-144%20passing-brightgreen)](#-testing)
 
-[Architecture](#-architecture) • [Sample Output](#-sample-output) • [Quick Start](#-quick-start) • [Web UI](#️-web-ui--dashboard) • [Deploy](#️-deploy) • [GitHub App](#-github-app-let-anyone-install-it) • [Engineering Notes](#-engineering-notes) • [Testing](#-testing)
+[Demo](#-demo) • [Architecture](#-architecture) • [Sample Output](#-sample-output) • [Quick Start](#-quick-start) • [Web UI](#️-web-ui--dashboard) • [Deploy](#️-deploy) • [GitHub App](#-github-app-let-anyone-install-it) • [Engineering Notes](#-engineering-notes) • [Testing](#-testing)
 
 </div>
+
+---
+
+## 🎬 Demo
+
+<p align="center">
+  <img src="assets/demo.gif" alt="CodeInspectorAI demo: review a pull request, inspect the verdict and findings, and explore the dashboard" width="800">
+</p>
+
+<p align="center"><em>Highlights from the working project: pull request review, results, and dashboard.</em></p>
 
 ---
 
