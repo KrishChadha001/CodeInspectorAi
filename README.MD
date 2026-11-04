@@ -9,9 +9,7 @@ then posts one structured, actionable review comment back on the PR.
 Install it as a **GitHub App**, try it on any public PR from the website, and watch every
 review on a live dashboard.
 
-**[🌐 Live site](https://code-inspector-ai.vercel.app/)** · **[📊 Dashboard](https://code-inspector-ai.vercel.app/dashboard)**
-
-[![tests](https://github.com/KrishChadha001/PRReviewBot/actions/workflows/tests.yml/badge.svg)](https://github.com/KrishChadha001/PRReviewBot/actions/workflows/tests.yml)
+[Source repository](https://github.com/KrishChadha001/CodeInspectorAi)
 [![Python](https://img.shields.io/badge/python-3.11%20|%203.12-3776AB?logo=python&logoColor=white)](https://www.python.org/)
 [![LangGraph](https://img.shields.io/badge/LangGraph-0.2-1C3C3C?logo=langchain&logoColor=white)](https://langchain-ai.github.io/langgraph/)
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.115-009688?logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com/)
@@ -138,8 +136,8 @@ And on a clean PR, it says so and gets out of the way — `✅ Approved`, no inv
 ## 🚀 Quick Start
 
 ```bash
-git clone https://github.com/KrishChadha001/PRReviewBot.git
-cd CodeInspectorAI
+git clone https://github.com/KrishChadha001/CodeInspectorAi.git
+cd CodeInspectorAi
 
 python -m venv .venv
 .venv\Scripts\activate            # Windows
@@ -276,7 +274,7 @@ built-in `HEALTHCHECK` against `/health`.
 
 ### Render (one click)
 
-[![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy?repo=https://github.com/KrishChadha001/PRReviewBot)
+[![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy?repo=https://github.com/KrishChadha001/CodeInspectorAi)
 
 `render.yaml` is a Render Blueprint: click the button above (or **New → Blueprint** in the
 Render dashboard and pick this repo) and fill in `GROQ_API_KEY` and `GITHUB_TOKEN` when
